@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 import { deviceSizes, imageSizes } from "./image-widths.mjs";
 
 const production = process.env.NODE_ENV === "production";
-const basePath = production ? (process.env.BASE_PATH ?? "/giriprasad") : "";
+// Empty because the site sits at the root of its address. Set BASE_PATH to host it in a subfolder.
+const basePath = production ? (process.env.BASE_PATH ?? "") : "";
 
 const nextConfig: NextConfig = {
   devIndicators: false,
