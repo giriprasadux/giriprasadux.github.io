@@ -1,0 +1,438 @@
+@import "tailwindcss";
+
+/* Colors: brand-colors.md (live Framer site). Type and grid: resume. */
+@theme {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-white: #ffffff;
+
+  --color-page: #f9f8f5;
+  --color-ink: #1e1515;
+  --color-primary: rgb(0 0 0 / 0.75);
+  /* Live token is 50% (3.9:1). Raised to 60% so small text passes WCAG AA. */
+  --color-muted: rgb(0 0 0 / 0.6);
+  --color-line: rgb(0 0 0 / 0.15);
+  /* #ff4141 is 3.3:1 on the page: large numerals, fills and marks only. */
+  --color-accent: #ff4141;
+  --color-accent-strong: #d52a2a;
+  --color-available: #5bd818;
+
+  --color-tint-red: #fad1d1;
+  --color-tint-blue: #d1eafa;
+  --color-tint-purple: #e7e0eb;
+  --color-tint-green: #dfefd7;
+  --color-tint-peach: #fae5d1;
+
+  --font-display: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-karla), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-kode), ui-monospace, monospace;
+
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    background: var(--color-page);
+    color: var(--color-primary);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  p,
+  li,
+  dd {
+    text-wrap: pretty;
+  }
+
+  /* If an image fails, its alt text stays readable on the tinted frame. */
+  img {
+    color: var(--color-primary);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  ::selection {
+    background: var(--color-tint-red);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent-strong);
+    outline-offset: 3px;
+  }
+
+  .on-ink :focus-visible {
+    outline-color: var(--color-accent);
+  }
+}
+
+@utility shell {
+  width: 100%;
+  max-width: 82rem;
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 4vw, 3rem);
+}
+
+/* The resume's two columns: about 65% narrative, 35% metadata. */
+@utility grid-editorial {
+  display: grid;
+  gap: 2.5rem clamp(2rem, 5vw, 5rem);
+  @media (width >= 60rem) {
+    grid-template-columns: minmax(0, 65fr) minmax(0, 35fr);
+  }
+}
+
+@utility section-title {
+  font-size: clamp(1.75rem, 2.6vw, 2.25rem);
+  line-height: 1.15;
+}
+
+@utility tag {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+/* Kode Mono's // starts 0.22em in; pull it onto the text edge. */
+@utility tag-slash {
+  margin-left: -0.16em;
+}
+
+@utility label {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* Static corner glow from the resume: a plain gradient, no blur or animation.
+   Sized by viewport so it never sits behind small red text. */
+@utility resume-glow {
+  background: radial-gradient(
+      var(--glow, 27vw) var(--glow-y, 27vw) at 100% 0%,
+      rgb(250 209 209 / 0.9) 0%,
+      rgb(250 209 209 / 0.35) 50%,
+      rgb(250 209 209 / 0) 100%
+    )
+    no-repeat;
+  @media (width >= 48rem) {
+    --glow: min(60rem, 48vw);
+    --glow-y: min(38rem, 48vw);
+  }
+}
+
+/* ---- Interaction: transform and opacity only ---- */
+
+.btn,
+.card-body,
+.card-frame::after,
+.card-rule,
+.card-arrow,
+.nav-link::after,
+.link-line::after {
+  transition:
+    transform 260ms var(--ease-soft),
+    opacity 260ms var(--ease-soft);
+}
+
+.btn:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+.btn {
+  border: 1.5px solid transparent;
+}
+
+.btn-outline {
+  border-color: var(--color-ink);
+}
+
+/* Links: a coral line grows from the left. */
+.nav-link,
+.link-line {
+  position: relative;
+}
+
+.nav-link {
+  display: inline-flex;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  align-items: center;
+}
+
+.nav-link::after,
+.link-line::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0.5rem;
+  height: 2px;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.link-line::after {
+  bottom: 0;
+  transform: none;
+}
+
+/* The outer card is the hover target and stays still; only its body moves,
+   so the pointer can't fall off the bottom edge and flicker. */
+.card-body {
+  position: relative;
+}
+
+.card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.card-link:focus-visible {
+  outline: none;
+}
+
+.card-link:focus-visible::after {
+  outline: 2px solid var(--color-accent-strong);
+  outline-offset: 8px;
+}
+
+.card-frame {
+  position: relative;
+}
+
+/* The coral border is painted up front; only its opacity changes. */
+.card-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--color-accent);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.card-rule {
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.card:focus-within .card-rule {
+  transform: none;
+}
+
+@media (hover: hover) {
+  .btn:hover:not(:active) {
+    transform: translateY(-2px);
+  }
+  .nav-link:hover::after {
+    transform: none;
+  }
+  .link-line:hover::after {
+    transform: scaleX(0.4);
+  }
+  .card:hover .card-body {
+    transform: translateY(-6px);
+  }
+  .card:hover .card-frame::after {
+    opacity: 1;
+  }
+  .card:hover .card-rule {
+    transform: none;
+  }
+  .card:hover .card-arrow {
+    transform: translateX(5px);
+  }
+}
+
+.card:active .card-body {
+  transform: translateY(-2px);
+  transition-duration: 80ms;
+}
+
+/* ---- Experience timeline ---- */
+
+.timeline-item {
+  --node: 0.8125rem;
+  --node-top: 0.65rem;
+  display: grid;
+  grid-template-columns: var(--node) 1fr;
+  column-gap: 1.25rem;
+}
+
+/* Spacing lives inside the row so the rail reaches the next node. */
+.timeline-item:not(:last-child) .timeline-body {
+  padding-bottom: 3rem;
+}
+
+.timeline-rail {
+  position: relative;
+  grid-area: 1 / 1 / span 2;
+}
+
+/* Line to the next node */
+.timeline-item:not(:last-child) .timeline-rail::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--node-top) + var(--node) / 2);
+  bottom: calc(-1 * (var(--node-top) + var(--node) / 2));
+  left: calc(var(--node) / 2 - 1px);
+  width: 2px;
+  background: rgb(255 65 65 / 0.4);
+  transform-origin: top;
+}
+
+/* Node */
+.timeline-rail::after {
+  content: "";
+  position: absolute;
+  top: var(--node-top);
+  left: 0;
+  width: var(--node);
+  height: var(--node);
+  border: 2px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-page);
+}
+
+.timeline-item:first-child .timeline-rail::after {
+  background: var(--color-accent);
+}
+
+.timeline-date {
+  grid-area: 1 / 2;
+  padding-top: 0.35rem;
+  padding-bottom: 0.375rem;
+}
+
+.timeline-body {
+  grid-area: 2 / 2;
+}
+
+@media (width >= 48rem) {
+  .timeline-item {
+    grid-template-columns: 5.75rem var(--node) 1fr;
+    column-gap: 1.5rem;
+  }
+  .timeline-rail {
+    grid-area: 1 / 2;
+  }
+  .timeline-date {
+    grid-area: 1 / 1;
+    padding-bottom: 0;
+  }
+  .timeline-body {
+    grid-area: 1 / 3;
+  }
+}
+
+/* ---- Case studies ---- */
+
+.contents-link {
+  position: relative;
+}
+
+.contents-link::before {
+  content: "";
+  position: absolute;
+  left: calc(-1rem - 1.5px);
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 2px;
+  background: var(--color-accent);
+  transform: scaleY(0);
+  transition: transform 260ms var(--ease-soft);
+}
+
+.contents-link[aria-current]::before {
+  transform: none;
+}
+
+.wipe-window {
+  transform: translateX(calc(var(--at) - 100%));
+}
+
+.wipe-picture {
+  transform: translateX(calc(100% - var(--at)));
+}
+
+.wipe-handle {
+  transform: translateX(var(--at));
+}
+
+.wipe:focus-within {
+  outline: 2px solid var(--color-accent-strong);
+  outline-offset: 4px;
+}
+
+/* ---- Scroll reveal ---- */
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 560ms var(--ease-soft),
+      transform 560ms var(--ease-soft);
+    transition-delay: calc(var(--i, 0) * 70ms);
+  }
+  .js [data-reveal="in"] {
+    opacity: 1;
+    transform: none;
+  }
+  .js .timeline-rail::before {
+    transform: scaleY(0);
+    transition: transform 900ms var(--ease-soft) 250ms;
+  }
+  .js [data-reveal="in"] .timeline-rail::before {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .card-body,
+  .card-frame::after,
+  .card-rule,
+  .card-arrow,
+  .nav-link::after,
+  .link-line::after {
+    transition: none;
+  }
+  .btn:hover:not(:active),
+  .btn:active,
+  .card:hover .card-body,
+  .card:active .card-body,
+  .card:hover .card-arrow,
+  .link-line:hover::after {
+    transform: none;
+  }
+}
